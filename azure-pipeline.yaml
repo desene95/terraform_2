@@ -1,0 +1,75 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- dev
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: validate
+  jobs:
+  - job: validate
+    continueOnError: false
+    steps:
+      - task: TerraformInstaller@0
+        displayName: "TF installer"
+        inputs:
+          terraformVersion: 'latest'
+      - task: TerraformTaskV3@3
+        displayName: "Initialize tf"
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          backendServiceArm: 'Pay-As-You-Go (d1ac2c8c-6294-46bc-ae8c-4188669ccbbc)'
+          backendAzureRmResourceGroupName: 'practice-tfstate'
+          backendAzureRmStorageAccountName: 'practicetfstatedame'
+          backendAzureRmContainerName: 'tfstate'
+          backendAzureRmKey: 'terraform.tfstate'
+      - task: TerraformTaskV3@3
+        displayName: "Validate"
+        inputs:
+          provider: 'azurerm'
+          command: 'validate'
+- stage: deploy
+  jobs:
+  - deployment: deploy_terraform
+    continueOnError: false
+    environment: 'dev'
+    strategy:
+     runOnce:
+       deploy:
+        steps:
+          - checkout: self
+          - task: TerraformInstaller@0
+            displayName: "TF installer"
+            inputs:
+              terraformVersion: 'latest'
+          - task: TerraformTaskV3@3
+            inputs:
+              provider: 'azurerm'
+              command: 'init'
+              backendServiceArm: 'Pay-As-You-Go (d1ac2c8c-6294-46bc-ae8c-4188669ccbbc)'
+              backendAzureRmResourceGroupName: 'practice-tfstate'
+              backendAzureRmStorageAccountName: 'practicetfstatedame'
+              backendAzureRmContainerName: 'tfstate'
+              backendAzureRmKey: 'terraform.tfstate'
+          - task: TerraformTaskV3@3
+            inputs:
+              provider: 'azurerm'
+              command: 'plan'
+              environmentServiceNameAzureRM: 'Pay-As-You-Go (d1ac2c8c-6294-46bc-ae8c-4188669ccbbc)'
+
+          - task: TerraformTaskV3@3
+            inputs:
+              provider: 'azurerm'
+              command: 'apply'
+              environmentServiceNameAzureRM: 'Pay-As-You-Go (d1ac2c8c-6294-46bc-ae8c-4188669ccbbc)'
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'
