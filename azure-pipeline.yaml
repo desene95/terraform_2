@@ -68,3 +68,8 @@ stages:
               provider: 'azurerm'
               command: 'apply'
               environmentServiceNameAzureRM: 'Pay-As-You-Go (d1ac2c8c-6294-46bc-ae8c-4188669ccbbc)'
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'

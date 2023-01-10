@@ -8,6 +8,7 @@ terraform {
         resource_group_name  = "practice-tfstate"
         storage_account_name = "practicetfstatedame"
         container_name       = "tfstate"
+        key = "terraform.tfstate"
         }
     }
 
