@@ -20,7 +20,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_storage_account" "this" {
-  name = "TestStorageAccoutDame"
+  name = "teststorageaccoutdame"
   resource_group_name      = azurerm_resource_group.rg.name
   location     = "Canada central"
   account_tier  = "Standard"
