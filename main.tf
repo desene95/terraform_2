@@ -19,3 +19,10 @@ resource "azurerm_resource_group" "rg" {
   location = "Canada central"
 }
 
+resource "azurerm_storage_account" "this" {
+  name = "teststorageaccoutdame"
+  resource_group_name      = azurerm_resource_group.rg.name
+  location     = "Canada central"
+  account_tier  = "Standard"
+  account_replication_type = "LRS"
+}
